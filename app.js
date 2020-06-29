@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const yaml = require('./utils/yaml');
 
 const indexRouter = require('./routes/index');
+const charactersRouter = require('./routes/characters');
 
 const bodyParser = require('body-parser');
 require('body-parser-xml')(bodyParser);
@@ -20,19 +21,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
+app.use('/characters', charactersRouter);
 
 // Error handler.
 app.use(function(err, req, res, next)
 {
-    console.log('Error handler...');
-
-    // Set res.locals, only providing error in development.
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-    // Render the error page.
-    res.status(err.status || 500);
-    res.render('error');
+  res.status(err.status || 500);
+  res.send({
+    errorCode: err.status,
+    errorMessage: err.message,
+    errorCause: JSON.stringify(err.cause)
+  });
+  res.end();
 });
 
 module.exports = app;
