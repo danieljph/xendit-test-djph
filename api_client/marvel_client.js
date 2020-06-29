@@ -3,7 +3,7 @@ const md5 = rootRequire('./utils/md5');
 const HashMap = require('hashmap');
 
 let lastFetchedMillis = new Date().getTime();
-const cacheExpirationInMillis = 5 * 60 * 1000; // Cache will expire after 5 minutes.
+const cacheExpirationInMillis = 10 * 60 * 1000; // Cache will expire after 10 minutes.
 
 const axiosRequestConfig = {
   baseURL: 'https://gateway.marvel.com/v1/public'
@@ -11,10 +11,13 @@ const axiosRequestConfig = {
 
 const axios = axiosRaw.create(axiosRequestConfig);
 
-const generalInterceptor = (request) => {
+
+
+const generalInterceptor = (request) =>
+{
+  const publicKey = process.env.MARVEL_PUBLIC_KEY;
+  const privateKey = process.env.MARVEL_PRIVATE_KEY;
   const ts = new Date().getTime().toString();
-  const publicKey = "e8cbc7c15796dc4ca07f6d1ad57c9975";
-  const privateKey = "bbcc2c407187de69b089849b1b7e3e62361e765b";
   const rawHash = ts + privateKey + publicKey;
   const hash = md5(rawHash);
 
@@ -30,11 +33,23 @@ axios.interceptors.request.use(generalInterceptor);
 
 const cacheStorage = new HashMap();
 
+var isPublicAndPrivateKeyExist = () =>
+{
+  const publicKey = process.env.MARVEL_PUBLIC_KEY;
+  const privateKey = process.env.MARVEL_PRIVATE_KEY;
+  return !publicKey || !privateKey;
+}
+
 var fetchData = async () =>
 {
   try
   {
     cacheStorage.clear();
+
+    if(isPublicAndPrivateKeyExist())
+    {
+      throw {message: "Please make sure you configure the public key & private key correctly. And make sure you put .env file that contains the public & private key information on the root of this project."};
+    }
 
     let counter = 0;
     const limit = 100;

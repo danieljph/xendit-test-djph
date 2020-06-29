@@ -1,5 +1,6 @@
 global.rootPath = __dirname;
 global.rootRequire = name => require(`${__dirname}/${name}`);
+require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
