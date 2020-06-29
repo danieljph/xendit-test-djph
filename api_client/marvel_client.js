@@ -3,7 +3,7 @@ const md5 = rootRequire('./utils/md5');
 const HashMap = require('hashmap');
 
 let lastFetchedMillis = new Date().getTime();
-const cacheExpirationInMillis = 20 * 1000; // Cache will expire after 20 seconds.
+const cacheExpirationInMillis = 5 * 60 * 1000; // Cache will expire after 5 minutes.
 
 const axiosRequestConfig = {
   baseURL: 'https://gateway.marvel.com/v1/public'
@@ -47,7 +47,7 @@ var fetchData = async () =>
     });
   
     console.log(`Counter: ${counter}, Total: ${total}`);
-    while(counter<total && counter<300)
+    while(counter<total)
     {
       axiosResponse = await axios.get("/characters", {params: {offset: counter, limit}});
       const responseBody = axiosResponse.data;
